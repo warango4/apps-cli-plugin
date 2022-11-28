@@ -660,7 +660,10 @@ func TestCreateFromGitWithAnnotations(t *testing.T) {
 			Name:         "Update the created workload",
 			WorkloadName: "test-create-git-annotations-workload",
 			Command: *it.NewTanzuAppsCommandLine(
-				"workload", "apply", "test-create-git-annotations-workload", namespaceFlag, "--annotation=min-instances=3", "--annotation=max-instances=5", "-y"),
+				"workload", "apply", "test-create-git-annotations-workload", namespaceFlag,
+				"--annotation=min-instances=3", "--annotation=max-instances=5",
+				"--git-commit", "425ae9a",
+				"-y"),
 			ExpectedObject: &cartov1alpha1.Workload{
 				TypeMeta: workloadTypeMeta,
 				ObjectMeta: metav1.ObjectMeta{
@@ -682,7 +685,8 @@ func TestCreateFromGitWithAnnotations(t *testing.T) {
 						Git: &cartov1alpha1.GitSource{
 							URL: "https://github.com/sample-accelerators/spring-petclinic",
 							Ref: cartov1alpha1.GitRef{
-								Tag: "tap-1.2",
+								Tag:    "tap-1.2",
+								Commit: "425ae9a",
 							},
 						},
 					},
