@@ -29,7 +29,6 @@ WOKE ?= go run -mod=mod -modfile hack/go.mod github.com/get-woke/woke
 ARTIFACTS_DIR ?= ./artifacts
 TANZU_PLUGIN_PUBLISH_PATH ?= $(ARTIFACTS_DIR)/published
 
-
 # Add supported OS-ARCHITECTURE combinations here
 ENVS ?= linux-amd64 windows-amd64 darwin-amd64 # linux-arm64 darwin-arm64
 
@@ -40,7 +39,13 @@ PUBLISH_JOBS := $(addprefix publish-,${ENVS})
 all: build ## Prepare and run the project tests
 
 .PHONY: install
-install: publish-local ## Install the plugin binaries to the local machine
+install: build-local publish-local ## Install the plugin binaries to the local machine
+	@# TODO avoid deleting an existing plugin once in place reinstalls are working again
+	@tanzu plugin delete apps > /dev/null 2>&1 || true
+	tanzu plugin install apps --version $(BUILD_VERSION) --local $(TANZU_PLUGIN_PUBLISH_PATH)/${GOHOSTOS}-${GOHOSTARCH}
+
+.PHONY: install-ci
+install-ci:
 	@# TODO avoid deleting an existing plugin once in place reinstalls are working again
 	@tanzu plugin delete apps > /dev/null 2>&1 || true
 	tanzu plugin install apps --version $(BUILD_VERSION) --local $(TANZU_PLUGIN_PUBLISH_PATH)/${GOHOSTOS}-${GOHOSTARCH}
@@ -60,11 +65,11 @@ build-%: ## Build the plugin binaries for the given OS-ARCHITECTURE combination
 	tanzu builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/plugin --artifacts ${ARTIFACTS_DIR}/${OS}/${ARCH}/cli --target ${OS}_${ARCH}
 
 .PHONY: publish
-publish: build $(PUBLISH_JOBS) ## Generate the dustributable plugin binaries packages
+publish: ## Generate the dustributable plugin binaries packages
 	tar -zcvf tanzu-apps-plugin.tar.gz -C $(TANZU_PLUGIN_PUBLISH_PATH) .
 
 .PHONY: publish-local
-publish-local: build-local ## Generate the dustributable plugin binaries packages for the host architecture
+publish-local: ## Generate the dustributable plugin binaries packages for the host architecture
 	tanzu builder publish --type local --plugins "apps" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --local-output-discovery-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/${GOHOSTOS}-${GOHOSTARCH}/discovery/standalone" --local-output-distribution-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/${GOHOSTOS}-${GOHOSTARCH}/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
 	tar -zcvf tanzu-apps-plugin.tar.gz -C $(TANZU_PLUGIN_PUBLISH_PATH)/${GOHOSTOS}-${GOHOSTARCH} .
 
@@ -80,7 +85,7 @@ docs: $(GO_SOURCES) ## Generate the plugin documentation
 	go run --ldflags "$(LD_FLAGS)" ./cmd/plugin/apps docs -d docs/command-reference
 
 .PHONY: test
-test: generate fmt vet ## Run tests
+test: ## Run tests
 	go test ./... -coverprofile=coverage.txt -covermode=atomic -timeout 30s -race
 
 .PHONY: lint

@@ -46,8 +46,6 @@ jobs:
         tanzu plugin install builder --local ${TANZU_HOME}/admin-plugins
         tanzu plugin install test --local ${TANZU_HOME}/admin-plugins
         tanzu plugin list
-    - name: Test
-      run: make test
     - name: Scan Inclusive Terminology
       uses: get-woke/woke-action@v0
       with: 
@@ -58,6 +56,9 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
     - name: Build
       run: |
+        make build
+    - name: Publish
+      run: |
         make publish
     - uses: actions/upload-artifact@v3
       with:
@@ -65,7 +66,7 @@ jobs:
         path: tanzu-apps-plugin*.tar.gz
         retention-days: 1
     - name: Install
-      run: make install
+      run: make install-ci
     - name: Verify docs
       run: |
         rm -rf docs/command-reference
@@ -104,16 +105,18 @@ jobs:
         tanzu plugin install builder --local $TANZU_HOME/admin-plugins
         tanzu plugin install test --local $TANZU_HOME/admin-plugins
         tanzu plugin list
-    - name: Test
-      run: make test
-    - name: Build
+    #- name: Build
+    #  run: |
+    #    $Env:PATH += ";C:\Program Files\tanzu"
+    #    make build
+    - name: Publish
       run: |
         $Env:PATH += ";C:\Program Files\tanzu"
         make publish
     - name: Install
       run: |
         $Env:PATH += ";C:\Program Files\tanzu"
-        make install
+        make install-ci
     - name: Verify docs
       run: |
         $Env:PATH += ";C:\Program Files\tanzu"
@@ -150,16 +153,17 @@ jobs:
         tanzu builder version
         tanzu plugin install test --local ${TANZU_HOME}/admin-plugins
         tanzu plugin list
-    - name: Test
-      run: make test
     - name: Build Version
       run: echo "BUILD_VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
       if: startsWith(github.ref, 'refs/tags/')
     - name: Build
       run: |
+        make build
+    - name: Publish
+      run: |
         make publish
     - name: Install
-      run: make install
+      run: make install-ci
     - name: Verify docs
       run: |
         rm -rf docs/command-reference
