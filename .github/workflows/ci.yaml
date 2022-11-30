@@ -51,8 +51,8 @@ jobs:
       with: 
         fail-on-error: true
         woke-args: -c https://via.vmw.com/its-woke-rules
-    - name: Install
-      run: make install
+    - name: Test
+      run: make test
     - name: Build Version
       run: echo "BUILD_VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
       if: startsWith(github.ref, 'refs/tags/')
@@ -65,6 +65,8 @@ jobs:
         name: tanzu-apps-plugin.tar.gz
         path: tanzu-apps-plugin*.tar.gz
         retention-days: 1
+    - name: Install
+      run: make install
     - name: Verify docs
       run: |
         rm -rf docs/command-reference
@@ -103,10 +105,10 @@ jobs:
         tanzu plugin install builder --local $TANZU_HOME/admin-plugins
         tanzu plugin install test --local $TANZU_HOME/admin-plugins
         tanzu plugin list
-    - name: Install
+    - name: Test
       run: |
-        $Env:PATH += ";C:\Program Files\tanzu"
-        make install
+        $Env:PATH += ";C:\Program Files\tanzu"      
+        make test
     - name: Build
       run: |
         $Env:PATH += ";C:\Program Files\tanzu"
@@ -115,6 +117,10 @@ jobs:
       run: |
         $Env:PATH += ";C:\Program Files\tanzu"
         make publish
+    - name: Install
+      run: |
+        $Env:PATH += ";C:\Program Files\tanzu"
+        make install
       continue-on-error: true
 
   unit-macos:
@@ -145,8 +151,8 @@ jobs:
         tanzu builder version
         tanzu plugin install test --local ${TANZU_HOME}/admin-plugins
         tanzu plugin list
-    - name: Install
-      run: make install
+    - name: Test
+      run: make test
     - name: Build Version
       run: echo "BUILD_VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
       if: startsWith(github.ref, 'refs/tags/')
@@ -154,6 +160,8 @@ jobs:
       run: make build
     - name: Publish
       run: make publish
+    - name: Install
+      run: make install
       continue-on-error: true
 
   acceptance:
