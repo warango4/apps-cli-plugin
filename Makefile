@@ -37,10 +37,10 @@ BUILD_JOBS := $(addprefix build-,${ENVS})
 PUBLISH_JOBS := $(addprefix publish-,${ENVS})
 
 .PHONY: all
-all: build ## Prepare and run the project tests
+all: test build ## Prepare and run the project tests
 
 .PHONY: install
-install: prepare test## Install the plugin binaries to the local machine
+install: test## Install the plugin binaries to the local machine
 	@# TODO avoid deleting an existing plugin once in place reinstalls are working again
 	@tanzu plugin delete apps > /dev/null 2>&1 || true
 	tanzu builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/plugin --target local --artifacts ${ARTIFACTS_DIR}/${GOHOSTOS}/${GOHOSTARCH}/cli
@@ -57,7 +57,7 @@ build-%: ## Build the plugin binaries for the given OS-ARCHITECTURE combination
 	tanzu builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/plugin --artifacts ${ARTIFACTS_DIR}/${OS}/${ARCH}/cli --target ${OS}_${ARCH}
 
 .PHONY: publish
-publish: build $(PUBLISH_JOBS) ## Generate the dustributable plugin binaries packages
+publish: $(PUBLISH_JOBS) ## Generate the dustributable plugin binaries packages
 	tar -zcvf tanzu-apps-plugin.tar.gz -C $(TANZU_PLUGIN_PUBLISH_PATH) .
 
 .PHONY: publish-%
@@ -72,7 +72,7 @@ docs: $(GO_SOURCES) ## Generate the plugin documentation
 	go run --ldflags "$(LD_FLAGS)" ./cmd/plugin/apps docs -d docs/command-reference
 
 .PHONY: test
-test: ## Run tests
+test: prepare## Run tests
 	go test ./... -coverprofile=coverage.txt -covermode=atomic -timeout 30s -race
 
 .PHONY: lint

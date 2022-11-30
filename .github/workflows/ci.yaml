@@ -56,9 +56,10 @@ jobs:
     - name: Build Version
       run: echo "BUILD_VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
       if: startsWith(github.ref, 'refs/tags/')
-    - name: Build and Publish
-      run: |
-        make publish
+    - name: Build
+      run: make build
+    - name: Publish
+      run: make publish
     - uses: actions/upload-artifact@v3
       with:
         name: tanzu-apps-plugin.tar.gz
@@ -102,22 +103,18 @@ jobs:
         tanzu plugin install builder --local $TANZU_HOME/admin-plugins
         tanzu plugin install test --local $TANZU_HOME/admin-plugins
         tanzu plugin list
-    - name: Test
-      run: make test
-    - name: Build
-      run: |
-        $Env:PATH += ";C:\Program Files\tanzu"
-        make publish
     - name: Install
       run: |
         $Env:PATH += ";C:\Program Files\tanzu"
         make install
-    - name: Verify docs
+    - name: Build
       run: |
         $Env:PATH += ";C:\Program Files\tanzu"
-        Remove-Item docs/command-reference -Recurse
-        tanzu apps docs --directory docs/command-reference
-        git diff --exit-code docs
+        make build
+    - name: Publish
+      run: |
+        $Env:PATH += ";C:\Program Files\tanzu"
+        make publish
       continue-on-error: true
 
   unit-macos:
@@ -148,21 +145,15 @@ jobs:
         tanzu builder version
         tanzu plugin install test --local ${TANZU_HOME}/admin-plugins
         tanzu plugin list
-    - name: Test
-      run: make test
+    - name: Install
+      run: make install
     - name: Build Version
       run: echo "BUILD_VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
       if: startsWith(github.ref, 'refs/tags/')
     - name: Build
-      run: |
-        make publish
-    - name: Install
-      run: make install
-    - name: Verify docs
-      run: |
-        rm -rf docs/command-reference
-        tanzu apps docs --directory docs/command-reference
-        git diff --exit-code docs
+      run: make build
+    - name: Publish
+      run: make publish
       continue-on-error: true
 
   acceptance:
