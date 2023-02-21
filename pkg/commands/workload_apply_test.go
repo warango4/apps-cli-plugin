@@ -907,6 +907,86 @@ Workload "my-workload" is ready
 `,
 		},
 		{
+			Name:        "tail with error",
+			ShouldError: true,
+			Args:        []string{workloadName, flags.GitRepoFlagName, gitRepo, flags.GitBranchFlagName, gitBranch, flags.YesFlagName, flags.TailFlagName},
+			Prepare: func(t *testing.T, ctx context.Context, config *cli.Config, tc *clitesting.CommandTestCase) (context.Context, error) {
+				workload := &cartov1alpha1.Workload{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: defaultNamespace,
+						Name:      workloadName,
+					},
+					Status: cartov1alpha1.WorkloadStatus{
+						Conditions: []metav1.Condition{
+							{
+								Type:   cartov1alpha1.WorkloadConditionReady,
+								Status: metav1.ConditionTrue,
+							},
+						},
+					},
+				}
+				fakeWatcher := watchfakes.NewFakeWithWatch(true, config.Client, []watch.Event{
+					{Type: watch.Modified, Object: workload},
+				})
+				ctx = watchhelper.WithWatcher(ctx, fakeWatcher)
+
+				tailer := &logs.FakeTailer{}
+				selector, _ := labels.Parse(fmt.Sprintf("%s=%s", cartov1alpha1.WorkloadLabelName, workloadName))
+				tailer.On("Tail", mock.Anything, "default", selector, []string{}, time.Minute, false).Return(nil).Once()
+				ctx = logs.StashTailer(ctx, tailer)
+
+				return ctx, nil
+			},
+			GivenObjects: givenNamespaceDefault,
+			CleanUp: func(t *testing.T, ctx context.Context, config *cli.Config, tc *clitesting.CommandTestCase) error {
+				tailer := logs.RetrieveTailer(ctx).(*logs.FakeTailer)
+				tailer.AssertExpectations(t)
+				return nil
+			},
+			ExpectCreates: []client.Object{
+				&cartov1alpha1.Workload{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: defaultNamespace,
+						Name:      workloadName,
+						Labels:    map[string]string{},
+					},
+					Spec: cartov1alpha1.WorkloadSpec{
+						Source: &cartov1alpha1.Source{
+							Git: &cartov1alpha1.GitSource{
+								URL: gitRepo,
+								Ref: cartov1alpha1.GitRef{
+									Branch: gitBranch,
+								},
+							},
+						},
+					},
+				},
+			},
+			ExpectOutput: `
+🔎 Create workload:
+      1 + |---
+      2 + |apiVersion: carto.run/v1alpha1
+      3 + |kind: Workload
+      4 + |metadata:
+      5 + |  name: my-workload
+      6 + |  namespace: default
+      7 + |spec:
+      8 + |  source:
+      9 + |    git:
+     10 + |      ref:
+     11 + |        branch: main
+     12 + |      url: https://example.com/repo.git
+👍 Created workload "my-workload"
+
+To see logs:   "tanzu apps workload tail my-workload --timestamp --since 1h"
+To get status: "tanzu apps workload get my-workload"
+
+Waiting for workload "my-workload" to become ready...
+...tail output...
+Error: failed to create watcher
+`,
+		},
+		{
 			Name: "tail while waiting for ready cond",
 			Args: []string{workloadName, flags.GitRepoFlagName, gitRepo, flags.GitBranchFlagName, gitBranch, flags.YesFlagName, flags.TailFlagName},
 			Prepare: func(t *testing.T, ctx context.Context, config *cli.Config, tc *clitesting.CommandTestCase) (context.Context, error) {
