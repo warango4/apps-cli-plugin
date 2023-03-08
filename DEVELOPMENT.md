@@ -64,7 +64,7 @@ tanzu plugin install builder --local ${TANZU_HOME}/admin-plugins
 tanzu plugin install test --local ${TANZU_HOME}/admin-plugins
 ```
 
-**Building apps plugin**
+**Building Apps CLI Plug-in**
 
 To build and install the apps plugin, run: (repeat this step any time you pull new source code to get the latest)
 
@@ -78,6 +78,41 @@ Verify installed plugins
 ```
 tanzu plugin list
 ```
+
+*Publishing Apps CLI Plug-in artifact to Github Container Registry*
+
+Since Tanzu CLI supports installing plugins from an OCI repository, the generated artifact for Apps CLI Plugin release can be uploaded to be publicly accessible in a repository such as Github Container Registry.
+
+To publish the artifact, there are some steps that need to be done before running `make publish-oci`.
+
+1. Login to Github Container Registry
+  - First, create a personal access token to use as password. Refer to [Create a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) Github guide. Make sure the token only has permission to write/read packages.
+  - Use a variable to store the access token.
+  ```sh
+  export CR_PAT=YOUR_TOKEN
+  ```
+  - Use the generated token as password to login to `ghcr.io`. Refer to [Working with the Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry) Github guide for more info about authentication.
+  ```sh
+  echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
+  ```
+
+2. Export discovery and distribution environment variables to be used in the `make` command.
+  ```sh
+  export DISCOVERY_REPO=ghcr.io/USERNAME/apps-cli-plugin/discovery
+  export DISTRIBUTION_REPO=ghcr.io/USERNAME/apps-cli-plugin/distribution
+  ````
+
+3. Run `make publish-oci` command to push to Github Container Registry. This command will take as input the last artifact in the `artifacts` directory.
+  ```sh
+  make publish-oci
+  ```
+  The output of this last step is similar to the following:
+  ```bash
+  2023-03-09T11:59:51-05:00 [ℹ]  Publishing plugin: apps to ghcr.io/USERNAME/apps-cli-plugin/distribution/apps-darwin-amd64:v0.11.1-dev-4ea1dafb
+  2023-03-09T12:00:22-05:00 [✔]  Successfully published plugin: apps
+  2023-03-09T12:00:22-05:00 [ℹ]  Publishing discovery image to: ghcr.io/USERNAME/apps-cli-plugin/discovery
+  2023-03-09T12:00:29-05:00 [✔]  Successfully published CLIPlugin resources to discovery image: ghcr.io/USERNAME/apps-cli-plugin/discovery
+  ```
 
 ## Testing
 ### Unit testing
