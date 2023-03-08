@@ -74,6 +74,7 @@ jobs:
           BUILD_VERSION=$(cat APPS_PLUGIN_VERSION)+dev-$BUILD_SHA_SHORT
         fi
         echo $BUILD_VERSION
+        echo "$PWD"
         tanzu plugin install apps --version $BUILD_VERSION --local ./artifacts/published/linux-amd64
     - name: Verify docs
       run: |
