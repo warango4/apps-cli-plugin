@@ -25,6 +25,7 @@ import (
 
 	cli "github.com/vmware-tanzu/apps-cli-plugin/pkg/cli-runtime"
 	"github.com/vmware-tanzu/apps-cli-plugin/pkg/cli-runtime/validation"
+	"github.com/vmware-tanzu/apps-cli-plugin/pkg/commands/lsp"
 	"github.com/vmware-tanzu/apps-cli-plugin/pkg/flags"
 	"github.com/vmware-tanzu/apps-cli-plugin/pkg/printer"
 )
@@ -47,6 +48,11 @@ func (opts *LocalSourceProxyHealthOptions) Validate(ctx context.Context) validat
 }
 
 func (opts *LocalSourceProxyHealthOptions) Exec(ctx context.Context, c *cli.Config) error {
+	if s, err := lsp.GetStatus(ctx, c); err != nil {
+		return err
+	} else {
+		printer.PrintLocalSourceProxyStatus(c.Stdout, opts.Output, s)
+	}
 	return nil
 }
 

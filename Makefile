@@ -114,3 +114,9 @@ vendor: go.mod go.sum $(GO_SOURCES) ## Generate the vendor directory
 # Absolutely awesome: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 help: ## Print help for each make target
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+install-tmp:
+	@tanzu plugin delete apps > /dev/null 2>&1 || true
+	tanzu builder cli compile --version $(BUILD_VERSION) --ldflags "$(LD_FLAGS)" --path ./cmd/plugin --target local --artifacts ${ARTIFACTS_DIR}/${GOHOSTOS}/${GOHOSTARCH}/cli
+	tanzu builder publish --type local --plugins "apps" --version $(BUILD_VERSION) --os-arch "${GOHOSTOS}-${GOHOSTARCH}" --local-output-discovery-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/${GOHOSTOS}-${GOHOSTARCH}/discovery/standalone" --local-output-distribution-dir "$(TANZU_PLUGIN_PUBLISH_PATH)/${GOHOSTOS}-${GOHOSTARCH}/distribution" --input-artifact-dir $(ARTIFACTS_DIR)
+	tanzu plugin install apps --version $(BUILD_VERSION) --local $(TANZU_PLUGIN_PUBLISH_PATH)/${GOHOSTOS}-${GOHOSTARCH}
