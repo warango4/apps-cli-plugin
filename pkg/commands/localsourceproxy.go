@@ -26,12 +26,9 @@ import (
 
 func NewLocalSourceProxyCommand(ctx context.Context, c *cli.Config) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "local-source-proxy",
-		Hidden: true,
-		Short:  "View status and health details for Local Source Proxy",
-		// 		Long: strings.TrimSpace(`
-		// <todo>
-		// `),
+		Use:     "local-source-proxy",
+		Hidden:  true,
+		Short:   "View status and health details for Local Source Proxy",
 		Aliases: []string{"lsp"},
 	}
 

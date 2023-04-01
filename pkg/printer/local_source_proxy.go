@@ -21,8 +21,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/vmware-tanzu/apps-cli-plugin/pkg/apis/lsp"
 	"gopkg.in/yaml.v2"
+
+	"github.com/vmware-tanzu/apps-cli-plugin/pkg/apis/lsp"
 )
 
 func PrintLocalSourceProxyStatus(w io.Writer, printType string, s lsp.LSPStatus) error {

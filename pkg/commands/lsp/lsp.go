@@ -20,7 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -28,6 +28,8 @@ import (
 	"github.com/vmware-tanzu/apps-cli-plugin/pkg/cli-runtime"
 	"github.com/vmware-tanzu/apps-cli-plugin/pkg/source"
 )
+
+const errFormat = "%s\nErrors:\n- %s"
 
 type lspResponse struct {
 	Message    string `json:"message"`
@@ -49,36 +51,71 @@ func GetStatus(ctx context.Context, c *cli.Config) (lsp.LSPStatus, error) {
 		return lsp.LSPStatus{}, err
 	}
 
-	if b, err := ioutil.ReadAll(resp.Body); err != nil {
+	if b, err := io.ReadAll(resp.Body); err != nil {
 		return lsp.LSPStatus{}, err
-	} else if err = json.Unmarshal(b, r); err != nil {
-		return lsp.LSPStatus{}, err
+	} else if err := json.Unmarshal(b, r); err != nil {
+		r = &lspResponse{Message: string(b)}
 	}
 
+	if s := checkRequestResponseCode(resp, r.Message); s != nil {
+		return *s, nil
+	}
+
+	return getStatusFromLSPResponse(*r)
+}
+
+func checkRequestResponseCode(resp *http.Response, msg string) *lsp.LSPStatus {
+	if resp.StatusCode == http.StatusForbidden || resp.StatusCode == http.StatusUnauthorized {
+		return &lsp.LSPStatus{
+			Message: fmt.Sprintf(errFormat, "The current user does not have permission to access the local source proxy.", msg),
+		}
+	}
+
+	if resp.StatusCode >= http.StatusInternalServerError && resp.StatusCode != http.StatusServiceUnavailable {
+		return &lsp.LSPStatus{
+			UserHasPermission: true,
+			Reachable:         true,
+			Message:           fmt.Sprintf(errFormat, "Local source proxy is not healthy.", msg),
+		}
+	}
+
+	if resp.StatusCode == http.StatusServiceUnavailable {
+		return &lsp.LSPStatus{
+			UserHasPermission: true,
+			Message:           fmt.Sprintf(errFormat, "Local source proxy is not healthy.", msg),
+		}
+	}
+
+	if resp.StatusCode == http.StatusNotFound {
+		return &lsp.LSPStatus{
+			UserHasPermission: true,
+			Message:           fmt.Sprintf(errFormat, "Local source proxy is not installed on the cluster.", msg),
+		}
+	}
+	return nil
+}
+
+func getStatusFromLSPResponse(r lspResponse) (lsp.LSPStatus, error) {
 	if r.StatusCode == "" {
 		return lsp.LSPStatus{}, fmt.Errorf("unable to read local source proxy response: %+v", r)
 	}
 
-	s, err := strconv.Atoi(r.StatusCode)
-	if err != nil {
+	if s, err := strconv.Atoi(r.StatusCode); err == nil {
+		switch s {
+		case http.StatusOK:
+			return lsp.LSPStatus{
+				UserHasPermission:     true,
+				Reachable:             true,
+				UpstreamAuthenticated: true,
+				OverallHealth:         true,
+			}, nil
+		default:
+			return lsp.LSPStatus{
+				Reachable: true,
+				Message:   r.Message,
+			}, nil
+		}
+	} else {
 		return lsp.LSPStatus{}, err
 	}
-
-	switch s {
-	case http.StatusOK:
-		return lsp.LSPStatus{
-			UserHasPermission:     true,
-			Reachable:             true,
-			UpstreamAuthenticated: true,
-			OverallHealth:         true,
-		}, nil
-	case http.StatusNotFound:
-	default:
-		return lsp.LSPStatus{
-			Reachable: true,
-			Message:   r.Message,
-		}, nil
-	}
-
-	return lsp.LSPStatus{}, nil
 }

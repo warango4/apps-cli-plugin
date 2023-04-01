@@ -17,9 +17,9 @@ limitations under the License.
 package lsp
 
 type LSPStatus struct {
-	UserHasPermission     bool   `json:"user_has_permission"`
-	Reachable             bool   `json:"reachable"`
-	UpstreamAuthenticated bool   `json:"upstream_authenticated"`
-	OverallHealth         bool   `json:"overall_health"`
-	Message               string `json:"message"`
+	UserHasPermission     bool   `json:"user_has_permission" yaml:"user_has_permission"`
+	Reachable             bool   `json:"reachable" yaml:"reachable"`
+	UpstreamAuthenticated bool   `json:"upstream_authenticated" yaml:"upstream_authenticated"`
+	OverallHealth         bool   `json:"overall_health" yaml:"overall_health"`
+	Message               string `json:"message" yaml:"message"`
 }
