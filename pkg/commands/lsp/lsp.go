@@ -108,11 +108,12 @@ func getStatusFromLSPResponse(r lspResponse) (lsp.LSPStatus, error) {
 				Reachable:             true,
 				UpstreamAuthenticated: true,
 				OverallHealth:         true,
+				Message:               "All health checks passed",
 			}, nil
 		default:
 			return lsp.LSPStatus{
 				Reachable: true,
-				Message:   r.Message,
+				Message:   fmt.Sprintf(errFormat, "Local source proxy was unable to authenticate against the target registry.", r.Message),
 			}, nil
 		}
 	} else {

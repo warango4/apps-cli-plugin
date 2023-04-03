@@ -194,6 +194,7 @@ func Test_getStatusFromLSPResponse(t *testing.T) {
 				Reachable:             true,
 				UpstreamAuthenticated: true,
 				OverallHealth:         true,
+				Message:               "All health checks passed",
 			},
 		},
 		{
@@ -206,7 +207,7 @@ func Test_getStatusFromLSPResponse(t *testing.T) {
 			},
 			want: lsp.LSPStatus{
 				Reachable: true,
-				Message:   msg,
+				Message:   "Local source proxy was unable to authenticate against the target registry.\nErrors:\n- my cool message",
 			},
 		},
 		{
@@ -219,7 +220,7 @@ func Test_getStatusFromLSPResponse(t *testing.T) {
 			},
 			want: lsp.LSPStatus{
 				Reachable: true,
-				Message:   msg,
+				Message:   "Local source proxy was unable to authenticate against the target registry.\nErrors:\n- my cool message",
 			},
 		},
 		{
@@ -232,7 +233,7 @@ func Test_getStatusFromLSPResponse(t *testing.T) {
 			},
 			want: lsp.LSPStatus{
 				Reachable: true,
-				Message:   msg,
+				Message:   "Local source proxy was unable to authenticate against the target registry.\nErrors:\n- my cool message",
 			},
 		},
 		{
@@ -245,7 +246,7 @@ func Test_getStatusFromLSPResponse(t *testing.T) {
 			},
 			want: lsp.LSPStatus{
 				Reachable: true,
-				Message:   msg,
+				Message:   "Local source proxy was unable to authenticate against the target registry.\nErrors:\n- my cool message",
 			},
 		},
 		{
@@ -258,7 +259,7 @@ func Test_getStatusFromLSPResponse(t *testing.T) {
 			},
 			want: lsp.LSPStatus{
 				Reachable: true,
-				Message:   msg,
+				Message:   "Local source proxy was unable to authenticate against the target registry.\nErrors:\n- my cool message",
 			},
 		},
 		{
@@ -271,7 +272,7 @@ func Test_getStatusFromLSPResponse(t *testing.T) {
 			},
 			want: lsp.LSPStatus{
 				Reachable: true,
-				Message:   msg,
+				Message:   "Local source proxy was unable to authenticate against the target registry.\nErrors:\n- my cool message",
 			},
 		},
 		{
@@ -284,7 +285,7 @@ func Test_getStatusFromLSPResponse(t *testing.T) {
 			},
 			want: lsp.LSPStatus{
 				Reachable: true,
-				Message:   msg,
+				Message:   "Local source proxy was unable to authenticate against the target registry.\nErrors:\n- my cool message",
 			},
 		},
 		{
@@ -297,7 +298,7 @@ func Test_getStatusFromLSPResponse(t *testing.T) {
 			},
 			want: lsp.LSPStatus{
 				Reachable: true,
-				Message:   msg,
+				Message:   "Local source proxy was unable to authenticate against the target registry.\nErrors:\n- my cool message",
 			},
 		},
 	}
