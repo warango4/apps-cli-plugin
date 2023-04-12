@@ -21,7 +21,7 @@ require (
 	github.com/vmware-labs/reconciler-runtime v0.11.1
 	github.com/vmware-tanzu/carvel-imgpkg v0.36.1
 	github.com/vmware-tanzu/difflib v0.0.0-20201117154628-0c031775bf57
-	github.com/vmware-tanzu/tanzu-framework/cli/runtime v0.0.0-20230407101341-462d945f657a
+	github.com/vmware-tanzu/tanzu-plugin-runtime v0.89.0
 	golang.org/x/crypto v0.8.0
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools/v3 v3.4.0
@@ -49,7 +49,6 @@ require (
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
-	github.com/aunum/log v0.0.0-20200821225356-38d2e2c8b489 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.7.1 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.5.0 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.3.1 // indirect
@@ -80,7 +79,6 @@ require (
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
-	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
@@ -118,6 +116,7 @@ require (
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
+	github.com/onsi/ginkgo/v2 v2.8.4 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
@@ -138,7 +137,6 @@ require (
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/vbatts/tar-split v0.11.2 // indirect
-	github.com/vmware-tanzu/tanzu-framework/apis/cli v0.0.0-20230215121916-ba6b6f70b187 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
 	go.starlark.net v0.0.0-20230112144946-fae38c8a6d89 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
@@ -170,6 +168,7 @@ require (
 )
 
 replace (
+	github.com/vmware-tanzu/tanzu-framework/cli/runtime => github.com/vmware-tanzu/tanzu-plugin-runtime v0.90.0-alpha.0
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.23.4
 	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.3
 )
